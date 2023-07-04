@@ -27,6 +27,7 @@
 }
 
 table{
+    grid-column: 2 / 3;
     border-collapse: collapse;
     margin-left: auto;
     margin-right: auto;
@@ -38,4 +39,19 @@ button{
 
 h1 {
     text-align: center;
+}
+
+h2{ display: inline;}
+
+.grid{
+    display: grid;
+    grid-template-columns: 25% 50% 25%;
+}
+
+#leftWalls{
+    grid-column: 1 / 2;
+}
+
+#rightWalls{
+    grid-column: 3 / 4;
 }

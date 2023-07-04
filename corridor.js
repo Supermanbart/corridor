@@ -106,6 +106,8 @@ function cancelCurrentMove()
 
 function placeWall(e)
 {
+    if ((game.turn === 'left' && game.leftWalls <= 0) || (game.turn === 'right' && game.rightWalls <= 0))
+        return;
     if (currentMove){
         cancelCurrentMove();
     }
@@ -139,6 +141,20 @@ function placeWall(e)
     }
 }
 
+function removeWall()
+{
+    if (game.turn === "left")
+    {
+        game.leftWalls--;
+        document.getElementById("leftWallsNumber").innerText = game.leftWalls;
+    }
+    else
+    {
+        game.rightWalls--;
+        document.getElementById("rightWallsNumber").innerText = game.rightWalls;
+    }
+}
+
 function endTurn()
 {
     if (!currentMove)
@@ -148,7 +164,7 @@ function endTurn()
     {
         case "wallAcross":
         case "wallVertical":
-            game.turn === "left" ? game.leftWalls-- : game.rightWalls--;
+            removeWall();
             break;
         default:
             console.error("Unkown action: ", currentMove.split(",")[0])
