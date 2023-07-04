@@ -1,0 +1,33 @@
+.corridor-board td{
+    border: solid 1px;
+}
+
+.pawnSquare{
+    width: 2em;
+    height: 2em
+}
+
+.wall{
+    background-color: silver;
+}
+
+.wallVertical{
+    width: 0.5em;
+    height: 2em;
+}
+
+.wallAcross{
+    width: 2em;
+    height: 0.5em;
+}
+
+.intersection{
+    width: 0.5em;
+    height: 0.5em;
+}
+
+table{
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
