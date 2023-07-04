@@ -31,3 +31,11 @@ table{
     margin-left: auto;
     margin-right: auto;
 }
+
+button{
+    margin-left: 48%;
+}
+
+h1 {
+    text-align: center;
+}
