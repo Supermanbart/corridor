@@ -224,7 +224,7 @@ function isJumpingDiagonal(coords, pawn, opponent)
 {
     if ((coords[0] === pawn[0] && coords[0] === opponent[0]) || (coords[1] === pawn[1] && coords[1] === opponent[1]))
         return false;
-    if (!isMoveOneSquare(opponent, pawn) && !isMoveOneSquare(opponent, coords))
+    if (!isMoveOneSquare(opponent, pawn) || !isMoveOneSquare(opponent, coords))
         return false;
     if (isWallbehindOpp(pawn, opponent))
         return true;
