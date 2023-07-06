@@ -8,8 +8,8 @@ const game = {
 }
 
 let currentMove = undefined;
-let leftPawn = undefined;
-let rightPawn = undefined;
+let leftPawnImg = undefined;
+let rightPawnImg = undefined;
 
 function createBoard(){
     let board = document.querySelector('#board');
@@ -22,6 +22,7 @@ function createBoard(){
             let pawnSquare = document.createElement('td');
             pawnSquare.classList.add("pawnSquare");
             pawnSquare.setAttribute("id", `${i * 2},${j * 2}`)
+            pawnSquare.addEventListener("click", movePawn);
             row.append(pawnSquare);
             if (j !== 8)
             {
@@ -56,12 +57,12 @@ function createBoard(){
             }
         }
     }
-    rightPawn = document.createElement("img");
-    rightPawn.setAttribute("src", "green_pawn.png");
-    document.getElementById("8,16").append(rightPawn);
-    leftPawn = document.createElement("img");
-    leftPawn.setAttribute("src", "red_pawn.png");
-    document.getElementById("8,0").append(leftPawn);
+    rightPawnImg = document.createElement("img");
+    rightPawnImg.setAttribute("src", "green_pawn.png");
+    document.getElementById("8,16").append(rightPawnImg);
+    leftPawnImg = document.createElement("img");
+    leftPawnImg.setAttribute("src", "red_pawn.png");
+    document.getElementById("8,0").append(leftPawnImg);
 }
 
 function cancelWallAcross()
@@ -71,7 +72,7 @@ function cancelWallAcross()
     game.board[y][x] = undefined;
     game.board[y][x + 1] = undefined;
     game.board[y][x + 2] = undefined;
-    console.log(`${y},${x + 1}`);
+    //console.log(`${y},${x + 1}`);
     document.getElementById(`${y},${x}`).style.backgroundColor = "silver";
     document.getElementById(`${y},${x + 1}`).style.backgroundColor = "silver";
     document.getElementById(`${y},${x + 2}`).style.backgroundColor = "silver";
@@ -89,6 +90,16 @@ function cancelWallVertical()
     document.getElementById(`${y + 2},${x}`).style.backgroundColor = "silver";
 }
 
+function cancelPawnMove(){
+    let y = Number(currentMove.split(",")[1]);
+    let x = Number(currentMove.split(",")[2]);
+    let pawn = (game.turn === "left" ? game.leftPawn : game.rightPawn);
+    let pawnImg = (game.turn === "left" ? leftPawnImg : rightPawnImg);
+    pawn[0] = y;
+    pawn[1] = x;
+    document.getElementById(`${y},${x}`).append(pawnImg);
+}
+
 function cancelCurrentMove()
 {
     switch(currentMove.split(",")[0])
@@ -99,9 +110,13 @@ function cancelCurrentMove()
         case "wallVertical":
             cancelWallVertical();
             break;
+        case "pawnMove":
+            cancelPawnMove();
+            break;
         default:
             console.error("Move unknown", currentMove.split(",")[0]);
     }
+    currentMove = undefined;
 }
 
 function placeWall(e)
@@ -153,6 +168,44 @@ function removeWall()
         game.rightWalls--;
         document.getElementById("rightWallsNumber").innerText = game.rightWalls;
     }
+}
+
+function movePawn(e)
+{
+    if (currentMove){
+        cancelCurrentMove();
+    }
+    let coords = e.target.id.split(",");
+    let y = Number(coords[0]);
+    let x = Number(coords[1]);
+    let pawn = (game.turn === "left" ? game.leftPawn : game.rightPawn);
+    //Check that target square is next to player pawn
+    if (!((Math.abs(y - pawn[0]) === 2 && Math.abs(x - pawn[1]) === 0) ||
+        (Math.abs(y - pawn[0] === 0 && Math.abs(x - pawn[1]) === 2))))
+        return;
+    
+    //Check that there is no wall between target square and pawn
+    let wallPosY = pawn[0];
+    let wallPosX = pawn[1];
+    if (pawn[0] > y)
+        wallPosY--;
+    else if(pawn[0] < y)
+        wallPosY++;
+    else if (pawn[1] < x)
+        wallPosX++;
+    else if(pawn[1] > x)
+        wallPosX--;
+    else
+        console.error("Pawn and target square are the same");
+    if (game.board[wallPosY][wallPosX])
+        return;
+    currentMove = `pawnMove,${pawn[0]},${pawn[1]}`;
+    pawn[0] = y;
+    pawn[1] = x;
+    
+    let pawnImg = (game.turn === "left" ? leftPawnImg : rightPawnImg);
+    document.getElementById(`${y},${x}`).append(pawnImg);
+    
 }
 
 function endTurn()
