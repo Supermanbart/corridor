@@ -170,6 +170,63 @@ function removeWall()
     }
 }
 
+function isMoveOneSquare(a, b)
+{
+    //Check that squares are next to each other
+    if  (!((Math.abs(a[0] - b[0]) === 2 && Math.abs(a[1] - b[1]) === 0) ||
+        (Math.abs(a[0] - b[0] === 0) && Math.abs(a[1] - b[1]) === 2)))
+        return false;
+
+    //Check that there are no walls between the two squares
+    let wallPosY = a[0];
+    let wallPosX = a[1];
+    if (a[0] > b[0])
+        wallPosY--;
+    else if(a[0] < b[0])
+        wallPosY++;
+    else if (a[1] < b[1])
+        wallPosX++;
+    else if(a[1] > b[1])
+        wallPosX--;
+    else
+        console.error("Pawn and target square are the same");
+    return game.board[wallPosY][wallPosX] === undefined;
+}
+
+function isJumpingStraight(coords, pawn, opponent)
+{
+    //Check all three square are in same column or line
+    if (!((coords[0] === pawn[0] && coords[0] === opponent[0]) || (coords[1] === pawn[1] && coords[1] === opponent[1])))
+        return false;
+    
+    return isMoveOneSquare(coords,opponent) && isMoveOneSquare(opponent,pawn);
+}
+
+function isWallbehindOpp(pawn, opponent)
+{
+    let wallY = opponent[0];
+    let wallX = opponent[1];
+    if (pawn[0] < opponent[0])
+        wallY++;
+    else if (pawn[0] > opponent[0])
+        wallY--;
+    else if (pawn[1] < opponent[1])
+        wallX++;
+    else if (pawn[1] > opponent[1])
+        wallX--;
+    return (wallY === -1 || wallY === 17 || wallX === -1 || wallY === 17 || game.board[wallY][wallX]);
+}
+
+function isJumpingDiagonal(coords, pawn, opponent)
+{
+    if ((coords[0] === pawn[0] && coords[0] === opponent[0]) || (coords[1] === pawn[1] && coords[1] === opponent[1]))
+        return false;
+    if (!isMoveOneSquare(opponent, pawn) && !isMoveOneSquare(opponent, coords))
+        return false;
+    if (isWallbehindOpp(pawn, opponent))
+        return true;
+}
+
 function movePawn(e)
 {
     if (currentMove){
@@ -178,27 +235,16 @@ function movePawn(e)
     let coords = e.target.id.split(",");
     let y = Number(coords[0]);
     let x = Number(coords[1]);
+    coords = [y, x];
     let pawn = (game.turn === "left" ? game.leftPawn : game.rightPawn);
-    //Check that target square is next to player pawn
-    if (!((Math.abs(y - pawn[0]) === 2 && Math.abs(x - pawn[1]) === 0) ||
-        (Math.abs(y - pawn[0] === 0 && Math.abs(x - pawn[1]) === 2))))
+    let opponent = (game.turn === "right" ? game.leftPawn : game.rightPawn);
+
+    if (opponent[0] === y && opponent[1] === x)
         return;
-    
-    //Check that there is no wall between target square and pawn
-    let wallPosY = pawn[0];
-    let wallPosX = pawn[1];
-    if (pawn[0] > y)
-        wallPosY--;
-    else if(pawn[0] < y)
-        wallPosY++;
-    else if (pawn[1] < x)
-        wallPosX++;
-    else if(pawn[1] > x)
-        wallPosX--;
-    else
-        console.error("Pawn and target square are the same");
-    if (game.board[wallPosY][wallPosX])
+
+    if (!isMoveOneSquare(coords, pawn) && !isJumpingStraight(coords, pawn, opponent) && !isJumpingDiagonal(coords, pawn, opponent))
         return;
+
     currentMove = `pawnMove,${pawn[0]},${pawn[1]}`;
     pawn[0] = y;
     pawn[1] = x;
@@ -220,7 +266,7 @@ function endTurn()
             removeWall();
             break;
         default:
-            console.error("Unkown action: ", currentMove.split(",")[0])
+            //console.error("Unkown action: ", currentMove.split(",")[0])
     }
     currentMove = undefined;
     let turntext = (game.turn === "left" ? "Right to play" : "Left to play");
