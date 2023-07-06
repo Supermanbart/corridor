@@ -4,8 +4,9 @@ const game = {
     rightWalls: 9,
     leftPawn: [8, 0],
     rightPawn: [8, 16],
-    board: Array(17).fill().map(()=>Array(17).fill())
-}
+    board: Array(17).fill().map(()=>Array(17).fill()),
+    gameOver: false
+};
 
 let currentMove = undefined;
 let leftPawnImg = undefined;
@@ -121,6 +122,8 @@ function cancelCurrentMove()
 
 function placeWall(e)
 {
+    if (game.gameOver)
+        return;
     if ((game.turn === 'left' && game.leftWalls <= 0) || (game.turn === 'right' && game.rightWalls <= 0))
         return;
     if (currentMove){
@@ -229,6 +232,8 @@ function isJumpingDiagonal(coords, pawn, opponent)
 
 function movePawn(e)
 {
+    if (game.gameOver)
+        return;
     if (currentMove){
         cancelCurrentMove();
     }
@@ -272,6 +277,18 @@ function endTurn()
     let turntext = (game.turn === "left" ? "Right to play" : "Left to play");
     document.getElementById("turn").innerText = turntext;
     game.turn = (game.turn === "left" ? "right" : "left");
+    if (game.leftPawn[1] === 16)
+    {
+        game.gameOver = true;
+        document.getElementById("gameOver").innerText = "LEFT WINS ! GG";
+        document.getElementById("turn").style.display = "none";
+    }
+    if (game.rightPawn[1] === 0)
+    {
+        game.gameOver = true;
+        document.getElementById("gameOver").innerText = "RIGHT WINS ! GG";
+        document.getElementById("turn").style.display = "none";
+    }
 }
 
 createBoard();
