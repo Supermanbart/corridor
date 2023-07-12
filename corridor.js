@@ -24,6 +24,10 @@ function createBoard(){
             pawnSquare.classList.add("pawnSquare");
             pawnSquare.setAttribute("id", `${i * 2},${j * 2}`)
             pawnSquare.addEventListener("click", movePawn);
+            if (j === 0)
+                pawnSquare.classList.add("rightObjective");
+            if (j === 8)
+                pawnSquare.classList.add("leftObjective")
             row.append(pawnSquare);
             if (j !== 8)
             {
@@ -141,9 +145,6 @@ function placeWall(e)
         game.board[y][x] = "Wall";
         game.board[y][x + 1] = "Wall";
         game.board[y][x + 2] = "Wall";
-        document.getElementById(`${y},${x}`).style.backgroundColor = "red";
-        document.getElementById(`${y},${x + 1}`).style.backgroundColor = "red";
-        document.getElementById(`${y},${x + 2}`).style.backgroundColor = "red";
     }
     else
     {
@@ -153,13 +154,11 @@ function placeWall(e)
         game.board[y][x] = "Wall";
         game.board[y + 1][x] = "Wall";
         game.board[y + 2][x] = "Wall";
-        document.getElementById(`${y},${x}`).style.backgroundColor = "red";
-        document.getElementById(`${y + 1},${x}`).style.backgroundColor = "red";
-        document.getElementById(`${y + 2},${x}`).style.backgroundColor = "red";
     }
+    changeWallColor("darkcyan", [y, x]);
 }
 
-function removeWall()
+function decreaseWallNumber()
 {
     if (game.turn === "left")
     {
@@ -170,6 +169,25 @@ function removeWall()
     {
         game.rightWalls--;
         document.getElementById("rightWallsNumber").innerText = game.rightWalls;
+    }
+}
+
+function changeWallColor(color, coords)
+{
+    console.table(coords)
+    const y = Number(coords[0]);
+    const x = Number(coords[1]);
+    if (x % 2 === 0)
+    {
+        document.getElementById(`${y},${x}`).style.backgroundColor = color;
+        document.getElementById(`${y},${x + 1}`).style.backgroundColor = color;
+        document.getElementById(`${y},${x + 2}`).style.backgroundColor = color;
+    }
+    else
+    {
+        document.getElementById(`${y},${x}`).style.backgroundColor = color;
+        document.getElementById(`${y + 1},${x}`).style.backgroundColor = color;
+        document.getElementById(`${y + 2},${x}`).style.backgroundColor = color;
     }
 }
 
@@ -259,6 +277,12 @@ function movePawn(e)
     
 }
 
+function isPossibleToFinish()
+{
+    return true;
+    //TODO
+}
+
 function endTurn()
 {
     if (!currentMove)
@@ -268,7 +292,15 @@ function endTurn()
     {
         case "wallAcross":
         case "wallVertical":
-            removeWall();
+            decreaseWallNumber();
+
+            changeWallColor("red", currentMove.split(",").slice(1));
+            if (!isPossibleToFinish())
+            {
+                //TODO Display message
+                cancelCurrentMove();
+                return;
+            }
             break;
         default:
             //console.error("Unkown action: ", currentMove.split(",")[0])
@@ -290,5 +322,10 @@ function endTurn()
         document.getElementById("turn").style.display = "none";
     }
 }
+
+document.addEventListener("keydown", function(e) {
+    if (e.code === 'Space' || e.code === 'Enter')
+        endTurn();
+})
 
 createBoard();

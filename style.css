@@ -4,7 +4,7 @@
 
 .pawnSquare{
     width: 2em;
-    height: 2em
+    height: 2em;
 }
 
 .wall{
@@ -34,7 +34,9 @@ table{
 }
 
 button{
-    margin-left: 48%;
+    font-size: medium;
+    width: 200px;
+    height: 50px;
 }
 
 h1 {
@@ -54,4 +56,22 @@ h2{ display: inline;}
 
 #rightWalls{
     grid-column: 3 / 4;
+}
+
+img {
+    width: 28px;
+}
+
+.rightObjective {
+    background-color:rgba(95, 223, 70, 0.8)
+}
+
+.leftObjective {
+    background-color: rgba(247, 43, 43, 0.8);
+}
+
+.flexContainer {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
 }
