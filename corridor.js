@@ -124,6 +124,38 @@ function cancelCurrentMove()
     currentMove = undefined;
 }
 
+function canFinishRec(board, objective, [y, x])
+{
+    if (y < 0 || y > 16 || x < 0 || x > 16 || board[y][x])
+        return false;
+    
+    if ((objective === "left" && x === 0) || (objective === "right" && x === 16))
+    {
+        //console.table(board);
+        return true;
+    }
+    
+    board[y][x] = "Visited"
+    let res = false;
+
+    if (x < 16 && !board[y][x + 1])
+        res = res || canFinishRec(board, objective, [y, x + 2])
+    if (x > 0 && !board[y][x - 1])
+        res = res || canFinishRec(board, objective, [y, x - 2])
+    if (y < 16 && !board[y + 1][x])
+        res = res || canFinishRec(board, objective, [y + 2, x])
+    if (y > 0 && !board[y - 1][x])
+        res = res || canFinishRec(board, objective, [y - 2, x])
+    return res;
+}
+
+function canFinishGame()
+{
+    let copyOne = game.board.map(e => e.slice());
+    let copyTwo = game.board.map(e => e.slice());
+    return canFinishRec(copyOne, "left", game.rightPawn) && canFinishRec(copyTwo, "right", game.leftPawn);
+}
+
 function placeWall(e)
 {
     if (game.gameOver)
@@ -155,6 +187,14 @@ function placeWall(e)
         game.board[y + 1][x] = "Wall";
         game.board[y + 2][x] = "Wall";
     }
+
+    if (!canFinishGame())
+    {
+        cancelCurrentMove();
+        document.getElementById("unfinishable").style.visibility = "visible";
+        setTimeout(() => document.getElementById("unfinishable").style.visibility = "hidden", 5000);
+        return;
+    }
     changeWallColor("darkcyan", [y, x]);
 }
 
@@ -174,7 +214,6 @@ function decreaseWallNumber()
 
 function changeWallColor(color, coords)
 {
-    console.table(coords)
     const y = Number(coords[0]);
     const x = Number(coords[1]);
     if (x % 2 === 0)
@@ -277,12 +316,6 @@ function movePawn(e)
     
 }
 
-function isPossibleToFinish()
-{
-    return true;
-    //TODO
-}
-
 function endTurn()
 {
     if (!currentMove)
@@ -295,12 +328,6 @@ function endTurn()
             decreaseWallNumber();
 
             changeWallColor("red", currentMove.split(",").slice(1));
-            if (!isPossibleToFinish())
-            {
-                //TODO Display message
-                cancelCurrentMove();
-                return;
-            }
             break;
         default:
             //console.error("Unkown action: ", currentMove.split(",")[0])

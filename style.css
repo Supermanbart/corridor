@@ -39,11 +39,15 @@ button{
     height: 50px;
 }
 
-h1 {
+h1, #unfinishable{
     text-align: center;
 }
 
-h2{ display: inline;}
+#unfinishable{
+    color:crimson;
+}
+
+.wallNumber{ display: inline;}
 
 .grid{
     display: grid;
